@@ -12,7 +12,7 @@ pipeline {
         AWS_DEFAULT_REGION    = 'ap-south-1'
         AMI_ID         = 'ami-0f5ee92e2d63afc18'  // Example AMI
         INSTANCE_TYPE  = 't2.micro'              // Instance type
-        NAME_TAG       = 'Indro-Jenkins-EC2'           // Name of the instance
+        NAME_TAG       = 'Indro-Jenkins-EC2'     // Name of the instance
     }
 
     stages {
@@ -27,9 +27,12 @@ pipeline {
             }
         }
         stage('Plan') {
-           steps {
+            steps {
                 sh 'terraform plan -var="ami_id=${AMI_ID}" -var="instance_type=${INSTANCE_TYPE}" -var="name_tag=${NAME_TAG}" -out tfplan'
-         }
+                sh 'terraform show -no-color tfplan > tfplan.txt'  // Ensure plan output is saved
+            }
+        }  // <-- This closing bracket was missing
+
         stage('Apply / Destroy') {
             steps {
                 script {
@@ -40,15 +43,14 @@ pipeline {
                             parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                         }
 
-                        sh 'terraform ${action} -input=false tfplan'
+                        sh 'terraform apply -input=false tfplan'  // Corrected action reference
                     } else if (params.action == 'destroy') {
-                        sh 'terraform ${action} --auto-approve'
+                        sh 'terraform destroy --auto-approve'  // Corrected action reference
                     } else {
                         error "Invalid action selected. Please choose either 'apply' or 'destroy'."
                     }
                 }
             }
         }
-
     }
 }
