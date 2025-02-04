@@ -4,15 +4,19 @@ pipeline {
     parameters {
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
+        string(name: 'AWS_REGION', defaultValue: 'ap-south-1', description: 'Enter AWS Region')
+        string(name: 'AMI', defaultValue: 'ami-0f5ee92e2d63afc18', description: 'Enter AMI ID')
+        choice(name: 'INSTANCE_TYPE', choices: ['t2.micro', 't2.small', 't2.medium'], description: 'Select Instance Type')
+        string(name: 'NAME_TAG', description: 'Enter Name Tag for EC2 Instance')
     }
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        AWS_DEFAULT_REGION    = 'ap-south-1'
-        AMI         = 'ami-0f5ee92e2d63afc18'  // Example AMI
-        INSTANCE_TYPE  = 't2.micro'              // Instance type
-        NAME_TAG       = 'Indro-Jenkins-EC2'     // Name of the instance
+        AWS_DEFAULT_REGION    = params.AWS_REGION  // ✅ User input
+        AMI                  = params.AMI         // ✅ User input
+        INSTANCE_TYPE        = params.INSTANCE_TYPE  // ✅ User input
+        NAME_TAG             = params.NAME_TAG   // ✅ User input
     }
 
     stages {
