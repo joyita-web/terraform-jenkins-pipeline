@@ -28,7 +28,7 @@ pipeline {
         }
         stage('Plan') {
             steps {
-                sh 'terraform plan -var="ami_id=${AMI_ID}" -var="instance_type=${INSTANCE_TYPE}" -var="name_tag=${NAME_TAG}" -out tfplan'
+                sh 'terraform plan -var="ami=${AMI}" -var="instance_type=${INSTANCE_TYPE}" -var="name_tag=${NAME_TAG}" -out tfplan'
                 sh 'terraform show -no-color tfplan > tfplan.txt'  // Ensure plan output is saved
             }
         }  // <-- This closing bracket was missing
