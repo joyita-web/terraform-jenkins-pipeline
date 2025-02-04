@@ -10,7 +10,7 @@ pipeline {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         AWS_DEFAULT_REGION    = 'ap-south-1'
-        AMI_ID         = 'ami-0f5ee92e2d63afc18'  // Example AMI
+        AMI         = 'ami-0f5ee92e2d63afc18'  // Example AMI
         INSTANCE_TYPE  = 't2.micro'              // Instance type
         NAME_TAG       = 'Indro-Jenkins-EC2'     // Name of the instance
     }
