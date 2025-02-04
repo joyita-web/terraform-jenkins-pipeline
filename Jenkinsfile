@@ -20,9 +20,9 @@ pipeline {
             steps {
                 script {
                     env.AWS_DEFAULT_REGION = params.AWS_REGION
-                    env.AMI = params.AMI
-                    env.INSTANCE_TYPE = params.INSTANCE_TYPE
-                    env.NAME_TAG = params.NAME_TAG
+                    env.AMI               = params.AMI
+                    env.INSTANCE_TYPE      = params.INSTANCE_TYPE
+                    env.NAME_TAG          = params.NAME_TAG
                 }
             }
         }
@@ -41,8 +41,23 @@ pipeline {
 
         stage('Plan') {
             steps {
-                sh 'terraform plan -var="ami=${env.AMI}" -var="instance_type=${env.INSTANCE_TYPE}" -var="name_tag=${env.NAME_TAG}" -out tfplan'
-                sh 'terraform show -no-color tfplan > tfplan.txt'
+                script {
+                    sh '''
+                        # Use Bash explicitly
+                        # Ensure variables are properly referenced
+                        export AMI="${AMI}"
+                        export INSTANCE_TYPE="${INSTANCE_TYPE}"
+                        export NAME_TAG="${NAME_TAG}"
+
+                        terraform plan \
+                            -var="ami=$AMI" \
+                            -var="instance_type=$INSTANCE_TYPE" \
+                            -var="name_tag=$NAME_TAG" \
+                            -out=tfplan
+
+                        terraform show -no-color tfplan > tfplan.txt
+                    '''
+                }
             }
         }
 
@@ -53,9 +68,8 @@ pipeline {
                         if (!params.autoApprove) {
                             def plan = readFile 'tfplan.txt'
                             input message: "Do you want to apply the plan?",
-                            parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                                parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                         }
-
                         sh 'terraform apply -input=false tfplan'
                     } else if (params.action == 'destroy') {
                         sh 'terraform destroy --auto-approve'
